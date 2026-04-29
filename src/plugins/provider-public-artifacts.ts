@@ -18,8 +18,6 @@ export type BundledProviderPolicySurface = {
   resolveConfigApiKey?: (ctx: ProviderResolveConfigApiKeyContext) => string | null | undefined;
 };
 
-const bundledProviderPolicySurfaceCache = new Map<string, BundledProviderPolicySurface | null>();
-
 function hasProviderPolicyHook(
   mod: Record<string, unknown>,
 ): mod is Record<string, unknown> & BundledProviderPolicySurface {
@@ -55,10 +53,6 @@ function tryLoadBundledProviderPolicySurface(
   return null;
 }
 
-export function clearBundledProviderPolicySurfaceCache(): void {
-  bundledProviderPolicySurfaceCache.clear();
-}
-
 export function resolveBundledProviderPolicySurface(
   providerId: string,
 ): BundledProviderPolicySurface | null {
@@ -66,16 +60,5 @@ export function resolveBundledProviderPolicySurface(
   if (!normalizedProviderId) {
     return null;
   }
-  if (bundledProviderPolicySurfaceCache.has(normalizedProviderId)) {
-    return bundledProviderPolicySurfaceCache.get(normalizedProviderId) ?? null;
-  }
-
-  const surface = tryLoadBundledProviderPolicySurface(normalizedProviderId);
-  if (surface) {
-    bundledProviderPolicySurfaceCache.set(normalizedProviderId, surface);
-    return surface;
-  }
-
-  bundledProviderPolicySurfaceCache.set(normalizedProviderId, null);
-  return null;
+  return tryLoadBundledProviderPolicySurface(normalizedProviderId);
 }
